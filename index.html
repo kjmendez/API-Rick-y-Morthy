@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>API GET</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS v5.2.1 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body class="bg-dark">
+    
+    <div class="container my-5" id="app">
+      <div class="h3 text-center text-warning">Rick and Morty API</div>  
+      <div class="row my-3">
+        <div class="col-md-4">
+          <button v-if="informacion.prev != null" @click="anterior" class="btn btn-warning">Anterior</button>
+        </div>
+        <div class="col-md-4">
+          <!-- <button @click="obtenerPersonajes" class="btn btn-primary">Cargar</button> -->
+        </div>
+        <div class="col-md-4">
+          <button v-if="informacion.next != null" @click="siguiente" class="btn btn-warning">Siguiente</button>
+        </div>
+      </div>
+      
+
+      <div class="row justify-content-center">
+        <div v-for="item in personajes" class="col-md-3" @click="seleccionado = item" data-bs-toggle="modal" data-bs-target="#modalId">
+          <div class="card m-1">
+            <img :src="item.image" class="card-img-top" alt="IMG">
+              <div class="card-body">
+                <h5 class="card-title">{{ item.name }}</h5>
+                <p class="card-text">{{item.species}}</p>
+                <a href="#" class="btn btn-primary">Ver</a>
+              </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="row my-3">
+        <div class="col-md-4">
+          <button v-if="informacion.prev != null" @click="anterior" class="btn btn-warning">Anterior</button>
+        </div>
+        <div class="col-md-4">
+          
+        </div>
+        <div class="col-md-4">
+          <button v-if="informacion.next != null" @click="siguiente" class="btn btn-warning">Siguiente</button>
+        </div>
+      </div>
+
+      <div class="modal fade" id="modalId" tabindex="-1">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Información</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row d-flex flex-column">
+                <div class="col d-flex flex-column align-items-center my-1">
+                  <img :src="seleccionado.image" class="rounded-circle" alt="Img" width="100px">
+                  <h6><span class="badge text-bg-success">{{ seleccionado.status }}</span></h6>
+                  <h5 class="card-title">{{ seleccionado.name }}</h5>
+                </div>
+                <div class="col">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between"><h4><b class="badge text-bg-primary">Genero:</b></h4> {{ seleccionado.gender }}</li>
+                    <li class="list-group-item d-flex justify-content-between"><h4><b class="badge text-bg-primary">Especie:</b></h4> {{ seleccionado.species }}</li>
+                    <li class="list-group-item d-flex justify-content-between"><h4><b class="badge text-bg-primary">Estado:</b></h4> {{ seleccionado.status }}</li>
+                    <li class="list-group-item d-flex justify-content-between"><h4><b class="badge text-bg-primary">Origen:</b></h4> {{ (seleccionado.origin) ? seleccionado.origin.name : '' }}</li>
+                    <li class="list-group-item d-flex justify-content-between"><h4><b class="badge text-bg-primary">Locación:</b></h4> {{ (seleccionado.location) ? seleccionado.location.name : '' }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>              
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+
+
+    
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script>
+  const { createApp, ref, onMounted} = Vue
+
+  createApp({
+    setup() {
+      const personajes = ref([]);
+      const informacion = ref({});
+      const seleccionado = ref({});
+
+      onMounted(() => {
+        obtenerPersonajes();
+      })
+
+      const obtenerPersonajes = async() => { //el async es para que vaya a bases de datos
+        try {
+          const {data} = await axios.get('https://rickandmortyapi.com/api/character'); //si la constante es response, devuelve mucha info con {data} info más específico
+          console.log(data);
+
+          personajes.value.push(...data.results);
+          informacion.value = data.info
+
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      const anterior = async() => {
+        try {
+          const {data} = await axios.get(informacion.value.prev); //si la constante es response, devuelve mucha info con {data} info más específico
+          personajes.value = [];
+          personajes.value.push(...data.results);
+          informacion.value = data.info
+
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      const siguiente = async() => {
+        try {
+          const {data} = await axios.get(informacion.value.next); //si la constante es response, devuelve mucha info con {data} info más específico
+          personajes.value = [];
+          personajes.value.push(...data.results);
+          informacion.value = data.info
+
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+
+      return {
+        personajes,
+        obtenerPersonajes,
+        siguiente,
+        anterior,
+        informacion,
+        seleccionado,
+        
+      }
+    }
+  }).mount('#app')
+</script>
+
+
+    <!-- Bootstrap JavaScript Libraries -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
